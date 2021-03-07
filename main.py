@@ -12,6 +12,8 @@ from flask_gravatar import Gravatar
 from functools import wraps
 from sqlalchemy.ext.declarative import declarative_base
 import os
+import secrets
+
 Base = declarative_base()
 
 login_manager = LoginManager()
@@ -28,7 +30,8 @@ def load_user(user_id):
 
 
 ##CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///blog.db")
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -67,6 +70,16 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey("blog_posts.id"))
     parent_post = relationship("BlogPost", back_populates="comments")
     text = db.Column(db.Text, nullable=False)
+
+
+def logged_in(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return abort(403)
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 @app.route('/')
@@ -160,18 +173,8 @@ def contact():
     return render_template("contact.html")
 
 
-def admin_only(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.id != 1:
-            return abort(403)
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
 @app.route("/new-post", methods=['GET', 'POST'])
-@admin_only
+@logged_in
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
@@ -191,7 +194,7 @@ def add_new_post():
 
 
 @app.route("/edit-post/<int:post_id>", methods=['GET', 'POST'])
-@admin_only
+@logged_in
 def edit_post(post_id):
     post = BlogPost.query.get(post_id)
     edit_form = CreatePostForm(
@@ -212,7 +215,7 @@ def edit_post(post_id):
 
 
 @app.route("/delete/<int:post_id>")
-@admin_only
+@logged_in
 def delete_post(post_id):
     post_to_delete = BlogPost.query.get(post_id)
     db.session.delete(post_to_delete)
@@ -222,4 +225,3 @@ def delete_post(post_id):
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
-

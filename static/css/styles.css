@@ -1,0 +1,12 @@
+.intro {
+  font-family: 'Montserrat';
+  font-size: 3rem;
+  font-weight: 800;
+  color: #616A6B;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.intro-buttons {
+  margin: 1%;
+}
