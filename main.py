@@ -21,7 +21,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 ckeditor = CKEditor(app)
 Bootstrap(app)
 login_manager.init_app(app)
-
+gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=False, force_lower=False, use_ssl=False, base_url=None)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -33,6 +33,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:/
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
 
 
 ##CREATE TABLE IN DB
@@ -70,6 +71,7 @@ class Comment(db.Model):
     parent_post = relationship("BlogPost", back_populates="comments")
     text = db.Column(db.Text, nullable=False)
 
+db.create_all()
 
 def logged_in(f):
     @wraps(f)
