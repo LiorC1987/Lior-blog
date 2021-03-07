@@ -12,7 +12,6 @@ from flask_gravatar import Gravatar
 from functools import wraps
 from sqlalchemy.ext.declarative import declarative_base
 import os
-import secrets
 
 Base = declarative_base()
 
