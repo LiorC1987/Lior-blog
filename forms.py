@@ -14,16 +14,16 @@ class CreatePostForm(FlaskForm):
 
 
 class RegisterForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
-    name = StringField("Name", validators=[DataRequired()])
+    nickname = StringField("Enter a username (will not be displayed in website)", validators=[DataRequired(), Length(min=4)], render_kw={"autocomplete": "off"})
+    password = PasswordField("Enter a Password", validators=[DataRequired(), Length(min=8)], render_kw={"autocomplete": "off"})
+    name = StringField("Enter a Name (will be displayed as author of posts)", validators=[DataRequired()], render_kw={"autocomplete": "off"})
     submit = SubmitField("Register!")
 
 class LoginForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
+    nickname = StringField("Username", validators=[DataRequired()], render_kw={"autocomplete": "off"})
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=8)], render_kw={"autocomplete": "off"})
     submit = SubmitField("Log in!")
 
 class CommentForm(FlaskForm):
-    body = CKEditorField("Comment", validators=[DataRequired()])
+    body = CKEditorField("Comment", validators=[DataRequired()], render_kw={"autocomplete": "off"})
     submit = SubmitField("Submit Comment")

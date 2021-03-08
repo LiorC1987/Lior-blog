@@ -17,10 +17,10 @@
 
   <!-- Main Content -->
 {% if not current_user.is_authenticated %}
-<h2 class="intro">Welcome! <br> Please sign up or sign in to continue</h2>
+<h2 class="intro">Welcome! <br> Please log in or register to continue</h2>
 <div class="text-center">
   <a class="btn btn-secondary" style="margin:1%;" href="{{url_for('login')}}">LOG IN</a>
-  <a class="btn btn-info" style="margin:1%;" href="{{url_for('register')}}">SIGN UP</a>
+  <a class="btn btn-info" style="margin:1%;" href="{{url_for('register')}}">REGISTER</a>
 </div>
 {% else %}
   <div class="container">
@@ -39,8 +39,8 @@
           <p class="post-meta">Posted by
             <a href="#">{{post.author.name}}</a>
             on {{post.date}}
-          {% if current_user.id == post.author_id %}
-            <a href="{{url_for('delete_post', post_id=post.id) }}">✘</a>
+          {% if current_user.id == post.author_id or current_user.id == 1 %}
+            <a href="{{url_for('delete_post', post_id=post.id) }}">✘ Delete</a>
           {% endif %}
           </p>
         </div>

@@ -29,8 +29,8 @@ def load_user(user_id):
 
 
 ##CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///blog.db")
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+# app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///blog.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -40,7 +40,7 @@ db = SQLAlchemy(app)
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
+    nickname = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     posts = relationship("BlogPost", back_populates="author")
@@ -93,24 +93,24 @@ def get_all_posts():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        email = form.email.data
+        nickname = form.nickname.data
         users = User.query.all()
         all_users = []
         for user in users:
-            all_users.append(user.email)
-        if email in all_users:
-            flash('User with that e-mail address already exists.')
+            all_users.append(user.nickname)
+        if nickname.lower() in all_users:
+            flash(f'User under the name of {nickname} already exists.')
             return render_template("register.html", form=form)
         else:
             # noinspection PyArgumentList
-            new_user = User(email=email,
+            new_user = User(nickname=nickname.lower(),
                             password=generate_password_hash(form.password.data,
                                                             method='pbkdf2:sha256', salt_length=8),
                             name=form.name.data)
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
-            return render_template("contact.html")
+            return redirect(url_for('get_all_posts'))
     return render_template("register.html", form=form)
 
 
@@ -118,15 +118,15 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        email = form.email.data
+        nickname = form.nickname.data
         password = form.password.data
         users = User.query.all()
         all_users = []
         for user in users:
-            all_users.append(user.email)
-        user = User.query.filter_by(email=email).first()
-        if email in all_users:
-            if check_password_hash(User.query.filter_by(email=email).first().password,
+            all_users.append(user.nickname)
+        user = User.query.filter_by(nickname=nickname).first()
+        if nickname in all_users:
+            if check_password_hash(User.query.filter_by(nickname=nickname).first().password,
                                    password):
                 login_user(user)
                 return redirect(url_for('get_all_posts'))
